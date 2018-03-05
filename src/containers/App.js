@@ -1,9 +1,38 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import classes from './App.css';
 import Persons from '../components/Persons/Persons';
 import Cockpit from '../components/Cockpit/Cockpit';
+import Aux from '../hoc/Aux';
+import withClass from '../hoc/withClass';
 
-class App extends Component {
+class App extends PureComponent {
+  constructor(props) {
+    super(props);
+    console.log('[App.js] inside constructor()', props);
+  }
+
+  componentWillMount() {
+    console.log('[App.js] inside componentWillMount()');
+  }
+
+  componentDidMount() {
+    console.log('[App.js] inside componentDidMount()');
+  }
+
+  /*shouldComponentUpdate(nextProps, nextState) {
+    console.log('[UPDATE App.js] inside shouldComponentUpdate()', nextProps, nextState);
+    return nextState.persons !== this.state.persons ||
+      nextState.showPersons !== this.state.showPersons;
+  }*/
+
+  componentWillUpdate(nextProps, nextState) {
+    console.log('[UPDATE App.js] inside componentWillUpdate()', nextProps, nextState);
+  }
+
+  componentDidUpdate() {
+    console.log('[UPDATE App.js] inside componentDidUpdate()');
+  }
+
   state = {
     persons: [
       { id: '1', name: 'Momin', age: 26 },
@@ -11,7 +40,8 @@ class App extends Component {
       { id: '3', name: 'Mahnoor', age: 18 }
     ],
     otherState: 'some other value',
-    showPersons: false
+    showPersons: false,
+    toggleClicked: 0
   };
   
   deletePersonHandler = (personIndex) => {
@@ -44,12 +74,16 @@ class App extends Component {
 
   togglePersonsHandler = () => {
     const doesShow = this.state.showPersons;
-    this.setState({
-      showPersons: !doesShow
+    this.setState((prevState, props) => {
+      return {
+        showPersons: !doesShow,
+        toggleClicked: prevState.toggleClicked + 1
+      }
     });
   };
 
   render() {
+    console.log('[App.js] inside render()');
     let persons = null;
     if(this.state.showPersons) {
       persons = <Persons 
@@ -59,15 +93,16 @@ class App extends Component {
     }
 
     return (
-      <div className={classes.App}>
-        <Cockpit 
-          showPersons = {this.state.showPersons} 
-          persons = {this.state.persons}
+      <Aux>
+        <Cockpit
+          appTitle={this.props.title} 
+          showPersons={this.state.showPersons} 
+          persons={this.state.persons}
           clicked={this.togglePersonsHandler}/>
         {persons}
-      </div>
+      </Aux>
     );
   }
 }
 
-export default App;
+export default withClass(App, classes.App);
